@@ -15,6 +15,7 @@ from typing import Optional, Tuple, List, Union
 import time
 import json
 from pathlib import Path
+from torch.utils.data import Dataset, DataLoader
 
 # =============================================================================
 # 1. CORE: IMPLEMENTAÇÃO ΨQRH DE ALTA PERFORMANCE
@@ -60,7 +61,7 @@ class ProductionQRHLayer(nn.Module):
             self.register_buffer('phi', torch.zeros(self.num_quaternions))
         
         # 3. Normalização eficiente (sem parâmetros)
-        self.norm = nn.RMSNorm(d_model) if hasattr(nn, 'RMSNorm') else nn.LayerNorm(d_model, elementwise_affine=False)
+        self.norm = nn.LayerNorm(d_model, elementwise_affine=False)
         
         # 4. Cache para frequências (otimização)
         self.register_buffer('_freq_cache', None)
@@ -428,7 +429,7 @@ def benchmark_scaling():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Dispositivo: {device}")
     
-    seq_lengths = [512, 1024, 2048, 4096, 8192, 16384]
+    seq_lengths = [512, 1024, 2048, 4096, 8192]
     batch_size = 2
     d_model = 256
     
@@ -795,7 +796,4 @@ def main():
     print("="*60)
 
 if __name__ == "__main__":
-    # Imports necessários
-    from torch.utils.data import Dataset, DataLoader
-    
     main()
